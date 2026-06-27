@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>カムシーリング 見積チャット（社内用）</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#002366">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="KS見積">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Hiragino Sans','Meiryo',YuGothic,sans-serif;background:#e8ecf3;min-height:100vh;font-size:13px;}
+#wrap{max-width:820px;margin:0 auto;padding:10px;display:flex;flex-direction:column;gap:10px;}
+.hdr{background:linear-gradient(90deg,#002060,#1a56db);color:#fff;padding:10px 16px;border-radius:8px;font-size:14px;letter-spacing:.05em;display:flex;align-items:center;gap:8px;}
+.hdr .logo{width:22px;height:22px;background:linear-gradient(135deg,#f60 0 25%,#c00 0 50%,#800 0 75%,#f90 0);flex-shrink:0;}
+.chat{background:#fff;border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:12px;}
+.msg{display:flex;gap:8px;align-items:flex-start;}
+.msg.user{flex-direction:row-reverse;}
+.av{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;}
+.bot .av{background:#002060;color:#fff;}
+.user .av{background:#d1d5db;}
+.bub{max-width:88%;padding:9px 13px;border-radius:4px 12px 12px 12px;font-size:13px;line-height:1.7;background:#f3f6fb;border:1px solid #d8dfe8;}
+.user .bub{background:#1a56db;color:#fff;border-radius:12px 4px 12px 12px;border:none;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;}
+.chip{padding:6px 13px;border:2px solid #1a56db;color:#1a56db;border-radius:20px;font-size:12px;font-weight:700;cursor:pointer;background:#fff;font-family:inherit;transition:.12s;}
+.chip:hover{background:#1a56db;color:#fff;}
+.chip:disabled{opacity:.4;cursor:default;}
+.irow{display:flex;gap:6px;align-items:center;margin-top:8px;flex-wrap:wrap;}
+.irow input{padding:7px 10px;border:2px solid #d0d7e3;border-radius:7px;font-size:13px;font-family:inherit;width:100px;}
+.irow input:focus{outline:none;border-color:#1a56db;}
+.irow label{font-size:11px;color:#888;}
+.ok{padding:7px 16px;background:#1a56db;color:#fff;border:none;border-radius:7px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;}
+.ok:hover{background:#002060;}
+.result{background:#fff;border:2px solid #1a56db;border-radius:10px;overflow:hidden;}
+.rh{background:linear-gradient(90deg,#002060,#1a56db);color:#fff;padding:9px 14px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:4px;}
+.rh b{font-size:13px;}
+.rh small{font-size:10px;opacity:.8;}
+.sgrid{display:grid;grid-template-columns:1fr 1fr;padding:10px 14px;border-bottom:1px solid #e5e8ef;gap:2px;}
+.sg{padding:3px 0;font-size:11px;}
+.sl{color:#9ca3af;}
+.sv{font-weight:700;font-family:'Courier New',monospace;color:#002060;font-size:12px;}
+.costs{padding:10px 14px;}
+.cr{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px dotted #e5e8ef;font-size:12px;}
+.cr:last-child{border:none;}
+.cv{font-family:'Courier New',monospace;font-weight:600;}
+.totbox{background:#eff6ff;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;border-top:2px solid #1a56db;}
+.totbox .tl{font-size:12px;font-weight:700;}
+.totbox .tv{font-family:'Courier New',monospace;font-size:22px;font-weight:900;color:#002060;}
+.ul{padding:6px 14px 10px;font-size:11px;color:#9ca3af;font-family:'Courier New',monospace;}
+.dn{background:#fee2e2;padding:6px 14px;font-size:11px;font-weight:700;color:#991b1b;border-top:1px solid #fca5a5;}
+.lsec{padding:0 14px 12px;}
+.lsec h3{font-size:11px;font-weight:700;color:#374151;margin:8px 0 4px;}
+table{width:100%;border-collapse:collapse;font-size:11px;}
+th{background:#f3f4f6;padding:5px 8px;text-align:right;font-weight:700;color:#374151;}
+th:first-child{text-align:left;}
+td{padding:5px 8px;border-bottom:1px solid #e5e8ef;text-align:right;font-family:'Courier New',monospace;}
+td:first-child{text-align:left;font-family:inherit;color:#374151;}
+.best td{font-weight:700;color:#002060;}
+.rst{margin-top:8px;padding:7px 16px;border:2px solid #d0d7e3;border-radius:20px;background:#fff;font-size:12px;font-weight:700;color:#374151;cursor:pointer;font-family:inherit;}
+.rst:hover{border-color:#1a56db;color:#1a56db;}
+.lwrap{margin-top:8px;display:flex;flex-direction:column;gap:6px;}
+</style>
+</head>
+<body>
+<div id="wrap">
+  <div class="hdr"><div class="logo"></div>カムシーリング 見積チャット（社内用）</div>
+  <div class="chat" id="chat"></div>
+  <div id="result"></div>
+</div>
+<script>
+// ── 計算ロジック ──
+var CS={1:[11000,12650,14300,15950,17600,19250,20900,22550,24200,25850,27500,29150,30800,32450,34100,35750,37400,39050,40700,38500],2:[12650,14300,15950,17600,19250,20900,22550,24200,25850,27500,29150,30800,32450,34100,35750,37400,39050,40700,42350,40000],3:[14300,15950,17600,19250,20900,22550,24200,25850,27500,29150,30800,32450,34100,35750,37400,39050,40700,42350,44000,41500],4:[16500,18150,19900,21450,23100,24750,26400,28050,29700,31350,33000,34650,36300,37950,39600,41250,42900,44550,46200,43500]};
+var FS={1:[16500,18975,21450,23925,26400,28875,31350,33825,36300,38775,41250,43725,46200,48675,51150,53625,56100,58575,61050,57750],2:[19500,21450,23925,26400,28875,31350,33825,36300,38775,41250,43725,46200,48675,51150,53625,56100,58575,61050,63525,60000],3:[21450,23925,26400,28875,31350,33825,36300,38775,41250,43725,46200,48675,51150,53625,56100,58575,61050,63525,66000,62250],4:[24750,27225,29700,32175,34650,37125,39600,42075,44550,47025,49500,51975,54450,56925,59400,61875,64350,66825,69300,65250]};
+function Tuw(W,mW){return Math.ceil((W*mW+3*(mW-1)+15)/5)*5;}
+function Tpitch(H,mH){return H*mH+3*(mH-1)+3;}
+function Tmach(uw,col,ink){var n4=col>=4||ink==='カラー';if(n4)return uw<=180?'MINI':'FUSION';return uw<=200?'CS':'FUSION';}
+function Tins(shot,col,mach){
+  var tbl=(mach==='CS'||mach==='MINI')?CS:FS;
+  var row=tbl[Math.min(col,4)]||tbl[1];
+  if(shot<=0)return 0;if(shot<=1000)return row[0];if(shot>=30000)return Math.round(shot*1.8);
+  if(shot>20000){var a=row[19]/20000-(shot-20000)*(row[19]/20000-1.8)/10000;return Math.round(shot*a);}
+  var lo=Math.min(Math.floor((shot-1)/1000),18),hi=Math.min(lo+1,19);
+  return Math.round(row[lo]+(row[hi]-row[lo])*((shot-(lo+1)*1000)/1000));
+}
+function Than(yw,th,col,ink){
+  var a=(th+1)*(yw+1);
+  if(ink==='特色'){var s=a>=300?col*(a*9+2400):col*a*17;return Math.floor(Math.max(s*1.3,2000*col)/100)*100;}
+  var s=a>=300?(a*9+2400+500)*4:a*15*4+2000;return Math.floor(Math.max(s*1.3,12000)/100)*100;
+}
+function Thag(H,W,men){
+  var p=H+W,s=p<=125?p*16*1.15*1.2*men:p<=250?(p*8+1000)*1.15*1.2*men:(p*10+500)*1.15*1.2*men;
+  return Math.floor(s/100)*100;
+}
+function Tcalc(shot,W,H,mW,mH,p){
+  var men=mW*mH,pitch=Tpitch(H,mH),uw=Tuw(W,mW);
+  var rs=Math.ceil(shot/men),ls=p.loss||1000;
+  var roll=Math.ceil((rs*pitch/1000+ls*pitch/1000)/100)*100;
+  var mach=Tmach(uw,p.col,p.ink),eff=mach==='CS'?Math.min(p.col,3):p.col;
+  var zai=p.pap>0?Math.round((uw/1000)*roll*p.pap*1.44):0;
+  var lami=p.lam>0?Math.round(((uw-5)/1000)*roll*p.lam*1.44):0;
+  var ins=Tins(rs,eff,mach);
+  var hD=p.han==='新版'?Than(uw/10,pitch/10,eff,p.ink):0;
+  var gD=p.hag==='新型'?Thag(H,W,men):0;
+  var shk=zai+ins+lami;
+  var shi=0;
+  if(p.shi==='ロール')shi=Math.round(shk*.1);
+  else if(p.shi==='全抜き')shi=Math.round(shk*.4);
+  else if(p.shi==='断裁')shi=Math.round(rs*3.5);
+  var total=shk+shi;
+  return{total:total,hD:hD,gD:gD,unit:total/shot,mach:mach,uw:uw,pitch:pitch,men:men,rs:rs,ls:ls,roll:roll,zai:zai,lami:lami,ins:ins,shi:shi,mW:mW,mH:mH};
+}
+function Tbest(shot,W,H,p){
+  var lim={CS:200,MINI:180,FUSION:330};
+  var m0=Tmach(Tuw(W,1),p.col,p.ink);
+  var maxW=lim[m0]||330;
+  var b={mW:1,mH:1},bt=Infinity;
+  for(var mW=1;mW<=12;mW++){
+    if(Tuw(W,mW)>maxW)break;
+    for(var mH=1;mH<=4;mH++){
+      var r=Tcalc(shot,W,H,mW,mH,p);
+      if(!r)continue;
+      var g=r.total+r.hD+r.gD;
+      if(g<bt){bt=g;b={mW:mW,mH:mH};}
+    }
+  }
+  return b;
+}
+var DPW=280,DL=30,DOM=100,DMM=1.44,DPR=50,DPMIN=14000,DSR=4,DSMIN=1000,DNB=5000,DNMIN=6000,DFR=170,DDA=1500;
+function Dsl(W,m){return Math.floor(DPW/(W*m+3*(m-1)+15));}
+function Ddie(W,H,m,isNew){if(!isNew)return 0;var p=W+H,base=p<=125?p*16:p<=250?p*8+1000:p*10+500;return Math.ceil(Math.max(base*1.15*1.2*m,1500)/100)*100;}
+function Dnuki(shots,foil,allcut){return Math.max(shots+DNB,DNMIN)*(foil?1.85:1)*(allcut?1.5:1);}
+function Dcalc(qty,W,H,p){
+  var matP=p.matP,lamP=p.lamP,fin=p.fin,isNew=p.isNew,foil=p.foil,des=p.des,mg=p.mg||0;
+  var bm=1,bt=Infinity;
+  for(var m=1;m<=8;m++){var sl=Dsl(W,m);if(!sl)continue;var sh=Math.ceil(qty/m);var t=Dnuki(sh,foil,fin==='allcut')+Ddie(W,H,m,isNew);if(t<bt){bt=t;bm=m;}}
+  if(fin==='allcut')bm=1;
+  var men=bm,slits=Dsl(W,men);if(!slits)return null;
+  var pc=slits*men,ps=Math.ceil(qty/pc),ds=Math.ceil(qty/men);
+  var rm=(H/1000)*ps,cm=rm+DL,om=Math.ceil(cm/DOM)*DOM;
+  var pm2=0.3*om,pcost=pm2*matP*DMM;
+  var lcost=0,lwmm=0,lom=0;
+  if(lamP>0){var rw=W*men+3*(men-1)+10;lwmm=Math.ceil(rw/5)*5;var lr=((H+3)/1000)*ds;lom=Math.ceil((lr+DL)/DOM)*DOM;lcost=(lwmm/1000)*lom*lamP*DMM;}
+  var mult=cm<=80?3:cm<=200?2.9:cm<=400?2.8:cm<=700?2.7:2.6;
+  var prc=Math.max(cm*DPR*mult,DPMIN),slit=Math.max(cm*slits*DSR,DSMIN);
+  var nuki=Dnuki(ds,foil,fin==='allcut'),die=Ddie(W,H,men,isNew);
+  var dsc=(des-1)*DDA;
+  var fw=lamP>0?lwmm:Math.ceil((W*men+3*(men-1)+10)/5)*5;
+  var fc=foil?(fw/1000)*cm*DFR:0;
+  var base=pcost+lcost+prc+slit+nuki+dsc+fc;
+  var tot=fin==='roll'?base*1.1:base;
+  var sell=Math.ceil(tot/(1-mg/100)/100)*100;
+  return{sell:sell,die:die,men:men,slits:slits,pc:pc,ps:ps,ds:ds,cm:cm,om:om,pcost:pcost,lcost:lcost,prc:prc,slit:slit,nuki:nuki,fc:fc,dsc:dsc,unit:sell/qty};
+}
+function Y(n){return '\u00a5'+Math.round(n).toLocaleString();}
+function today(){var d=new Date();return d.getFullYear()+'/'+(d.getMonth()+1)+'/'+d.getDate();}
+
+// ── State ──
+var S={mode:null,W:0,H:0,pap:0,lam:0,matP:0,lamP:0,ink:'特色',col:1,han:'新版',hag:'新型',shi:'シート',fin:'sheet',isNew:true,foil:false,des:1,mg:0,lots:[]};
+var stepIdx=0;
+
+var STEPS=[
+  {id:'mode',q:'<b>印刷方式</b>を選んでください。',type:'chips',opts:['凸版印刷（CS/ミニ/FUSION）','デジタル印刷（AccurioLabel）'],
+   go:function(v){S.mode=v.indexOf('凸版')>=0?'T':'D';return v;}},
+  {id:'size',q:'<b>ラベルサイズ</b>を入力してください（mm）。',type:'size'},
+  {id:'Tpap',q:'<b>用紙単価</b>（円/m²）を入力してください。<br><small>目安：上質55普通糊=74 / アート73普通糊=96 / アート73トイシ=172 / PET#50超トイシ=368</small>',
+   type:'num',key:'pap',unit:'円/m²',skip:function(){return S.mode!=='T';}},
+  {id:'Tlam',q:'<b>ラミネート</b>はありますか？<br><small>目安：OPP#20=104 / PET#16=130 / マットOPP=210 / マットPET=317</small>',
+   type:'lami',key:'lam',skip:function(){return S.mode!=='T';}},
+  {id:'Tink',q:'<b>インク種別・色数</b>を選んでください。',type:'chips',
+   opts:['特色1色','特色2色','特色3色','特色4色','カラー（4色）'],
+   go:function(v){if(v==='カラー（4色）'){S.ink='カラー';S.col=4;}else{S.ink='特色';S.col=parseInt(v)||1;}return v;},
+   skip:function(){return S.mode!=='T';}},
+  {id:'Than',q:'<b>版</b>の状況を選んでください。',type:'chips',opts:['新版（初回）','再版（版あり）'],
+   go:function(v){S.han=v.indexOf('新')===0?'新版':'再版';return v;},skip:function(){return S.mode!=='T';}},
+  {id:'Thag',q:'<b>刃型</b>の状況を選んでください。',type:'chips',opts:['新型（初回）','再型（刃型あり）'],
+   go:function(v){S.hag=v.indexOf('新')===0?'新型':'再型';return v;},skip:function(){return S.mode!=='T';}},
+  {id:'Tshi',q:'<b>仕上げ</b>を選んでください。',type:'chips',opts:['シート','ロール','全抜き','断裁'],
+   go:function(v){S.shi=v;return v;},skip:function(){return S.mode!=='T';}},
+  {id:'Dmat',q:'<b>用紙単価</b>（円/m²）を入力してください。<br><small>目安：アート73普通糊=96 / PET#50超トイシ=368 / YUPO#80超トイシ=368</small>',
+   type:'num',key:'matP',unit:'円/m²',skip:function(){return S.mode!=='D';}},
+  {id:'Dlam',q:'<b>ラミネート</b>はありますか？<br><small>目安：OPP#20=104 / PET#16=130 / マットOPP=210 / マットPET=317</small>',
+   type:'lami',key:'lamP',skip:function(){return S.mode!=='D';}},
+  {id:'Dfin',q:'<b>仕上げ</b>を選んでください。',type:'chips',opts:['シート仕上げ','ロール仕上げ','全抜き'],
+   go:function(v){S.fin=v.indexOf('シート')>=0?'sheet':v.indexOf('ロール')>=0?'roll':'allcut';return v;},skip:function(){return S.mode!=='D';}},
+  {id:'Ddie',q:'<b>刃型</b>の状況を選んでください。',type:'chips',opts:['新規（初回・刃型なし）','再版（刃型あり）'],
+   go:function(v){S.isNew=v.indexOf('新')===0;return v;},skip:function(){return S.mode!=='D';}},
+  {id:'qty',q:'<b>数量</b>を入力してください（複数ロット比較も可）。',type:'qty'},
+];
+
+function addBot(html,extra){
+  var chat=document.getElementById('chat');
+  var d=document.createElement('div');
+  d.className='msg bot';
+  d.innerHTML='<div class="av">\u{1F3ED}</div><div class="bub">'+html+(extra||'')+'</div>';
+  chat.appendChild(d);
+  d.scrollIntoView({block:'end'});
+}
+function addUser(txt){
+  var chat=document.getElementById('chat');
+  var d=document.createElement('div');
+  d.className='msg user';
+  d.innerHTML='<div class="bub">'+txt+'</div><div class="av">\u{1F464}</div>';
+  chat.appendChild(d);
+  d.scrollIntoView({block:'end'});
+}
+function disableAll(){
+  document.querySelectorAll('.chip,.ok,input').forEach(function(e){e.disabled=true;});
+}
+function advance(label){
+  disableAll();
+  addUser(label);
+  setTimeout(function(){runStep(stepIdx+1);},250);
+}
+function runStep(idx){
+  while(idx<STEPS.length && STEPS[idx].skip && STEPS[idx].skip()) idx++;
+  stepIdx=idx;
+  if(idx>=STEPS.length){showResult();return;}
+  var st=STEPS[idx];
+  var extra='';
+  if(st.type==='chips'){
+    var btns=st.opts.map(function(o){
+      return '<button class="chip" onclick="doChip('+idx+',\''+o+'\')">'+o+'</button>';
+    }).join('');
+    extra='<div class="chips">'+btns+'</div>';
+  } else if(st.type==='size'){
+    extra='<div class="irow"><label>幅W</label><input id="iW" type="number" min="1" max="320" placeholder="50"><label>mm</label><label>高さH</label><input id="iH" type="number" min="1" max="400" placeholder="30"><label>mm</label><button class="ok" onclick="doSize()">OK</button></div>';
+  } else if(st.type==='num'){
+    extra='<div class="irow"><input id="iNum" type="number" min="0" placeholder="'+st.unit+'"><label>'+st.unit+'</label><button class="ok" onclick="doNum(\''+st.key+'\')">OK</button></div>';
+  } else if(st.type==='lami'){
+    extra='<div class="lwrap"><div class="chips"><button class="chip" onclick="doLami(\''+st.key+'\',0)">なし</button></div><div class="irow"><label>単価</label><input id="iLam" type="number" min="1" placeholder="円/m²"><label>円/m²</label><button class="ok" onclick="doLamiNum(\''+st.key+'\')">あり→確定</button></div></div>';
+  } else if(st.type==='qty'){
+    var inps='';
+    var ph=['1000','3000','5000','',''];
+    for(var i=1;i<=5;i++) inps+='<input id="q'+i+'" type="number" min="1" placeholder="'+ph[i-1]+'" style="width:82px;">';
+    extra='<div class="irow" style="flex-wrap:wrap;">'+inps+'<button class="ok" onclick="doQty()">見積実行</button></div>';
+  }
+  addBot(st.q,extra);
+  setTimeout(function(){var el=document.querySelector('#chat input:not([disabled])');if(el)el.focus();},150);
+}
+function doChip(idx,v){
+  var st=STEPS[idx];
+  var label=st.go?st.go(v):v;
+  advance(label);
+}
+function doSize(){
+  var W=parseFloat(document.getElementById('iW').value);
+  var H=parseFloat(document.getElementById('iH').value);
+  if(!W||!H){alert('縦横とも入力してください');return;}
+  if(S.mode==='D'&&W>280){alert('デジタルは幅280mm以内です');return;}
+  S.W=W;S.H=H;
+  advance(W+' \u00d7 '+H+' mm');
+}
+function doNum(key){
+  var v=parseFloat(document.getElementById('iNum').value);
+  if(!v||v<=0){alert('数値を入力してください');return;}
+  S[key]=v;
+  advance(Y(v)+'/m\u00b2');
+}
+function doLami(key,v){S[key]=v;advance('なし');}
+function doLamiNum(key){
+  var v=parseFloat(document.getElementById('iLam').value);
+  if(!v||v<=0){alert('単価を入力してください');return;}
+  S[key]=v;
+  advance('ラミあり '+v+'円/m\u00b2');
+}
+function doQty(){
+  var vals=[];
+  for(var i=1;i<=5;i++){var v=parseInt(document.getElementById('q'+i).value)||0;if(v>0)vals.push(v);}
+  if(!vals.length){alert('数量を1つ以上入力してください');return;}
+  S.lots=vals;
+  advance(vals.map(function(v){return v.toLocaleString()+'枚';}).join(' / '));
+}
+document.addEventListener('keydown',function(e){
+  if(e.key!=='Enter')return;
+  var ok=document.querySelector('.ok:not([disabled])');
+  if(ok)ok.click();
+});
+
+function showResult(){
+  var lots=S.lots;
+  var div=document.getElementById('result');
+  var html='';
+  if(S.mode==='T'){
+    var p={pap:S.pap,lam:S.lam,ink:S.ink,col:S.col,han:S.han,hag:S.hag,shi:S.shi,loss:1000};
+    var q0=lots[0];
+    var b=Tbest(q0,S.W,S.H,p);
+    var r=Tcalc(q0,S.W,S.H,b.mW,b.mH,p);
+    if(!r){addBot('計算エラー：サイズや材料を確認してください。');return;}
+    var grand=r.total+r.hD+r.gD;
+    var ml=r.mH>1?'幅'+r.mW+'×送'+r.mH+'(計'+r.men+'面)':r.mW>1?'幅'+r.mW+'面':'1面';
+    var lotRows='';
+    if(lots.length>1){
+      for(var i=0;i<lots.length;i++){
+        var q=lots[i];
+        var bb=Tbest(q,S.W,S.H,p);
+        var rr=Tcalc(q,S.W,S.H,bb.mW,bb.mH,p);
+        if(!rr)continue;
+        var gr=rr.total+rr.hD+rr.gD;
+        var ll=rr.mH>1?'幅'+rr.mW+'×送'+rr.mH:rr.mW>1?'幅'+rr.mW+'面':'1面';
+        lotRows+='<tr'+(i===0?' class="best"':'')+'><td>'+q.toLocaleString()+'枚</td><td>'+ll+'</td><td>'+Y(rr.total)+'</td><td>'+(rr.hD?Y(rr.hD):'—')+'</td><td>'+(rr.gD?Y(rr.gD):'—')+'</td><td>'+Y(gr)+'</td><td>'+(gr/q).toFixed(2)+'円</td></tr>';
+      }
+    }
+    html='<div class="result">'
+      +'<div class="rh"><b>📄 凸版印刷 見積（社内用）</b><small>'+S.W+'×'+S.H+'mm / '+S.ink+S.col+'色 / '+today()+'</small></div>'
+      +'<div class="sgrid">'
+      +'<div class="sg"><div class="sl">面付け</div><div class="sv">'+ml+'</div></div>'
+      +'<div class="sg"><div class="sl">機種</div><div class="sv">'+r.mach+'</div></div>'
+      +'<div class="sg"><div class="sl">使用幅</div><div class="sv">'+r.uw+'mm</div></div>'
+      +'<div class="sg"><div class="sl">ロール発注</div><div class="sv">'+r.roll+'m（実'+r.rs+'通し）</div></div>'
+      +'</div>'
+      +'<div class="costs">'
+      +'<div class="cr"><span>① 材料費</span><span class="cv">'+Y(r.zai)+'</span></div>'
+      +(r.lami?'<div class="cr"><span>　ラミ費</span><span class="cv">'+Y(r.lami)+'</span></div>':'')
+      +'<div class="cr"><span>② 印刷費（'+r.rs+'通し / '+r.mach+'）</span><span class="cv">'+Y(r.ins)+'</span></div>'
+      +(r.shi?'<div class="cr"><span>③ 仕上げ（'+S.shi+'）</span><span class="cv">'+Y(r.shi)+'</span></div>':'')
+      +'<div class="cr" style="font-weight:700"><span>小計（版・刃型除く）</span><span class="cv">'+Y(r.total)+'</span></div>'
+      +'<div class="cr" style="color:#991b1b"><span>④ 版代（'+S.han+'）</span><span class="cv">'+(r.hD?Y(r.hD):'¥0（再版）')+'</span></div>'
+      +'<div class="cr" style="color:#991b1b"><span>⑤ 刃型代（'+S.hag+'）</span><span class="cv">'+(r.gD?Y(r.gD):'¥0（再型）')+'</span></div>'
+      +'</div>'
+      +'<div class="totbox"><span class="tl">合計（税別・版刃型込）</span><span class="tv">'+Y(grand)+'</span></div>'
+      +'<div class="ul">単価: '+(grand/q0).toFixed(2)+'円/枚　|　数量: '+q0.toLocaleString()+'枚</div>'
+      +((r.hD+r.gD)>0?'<div class="dn">※ 版代'+Y(r.hD)+' + 刃型代'+Y(r.gD)+' = '+Y(r.hD+r.gD)+'（初回のみ）</div>':'')
+      +(lots.length>1?'<div class="lsec"><h3>📊 数量別比較</h3><table><tr><th>数量</th><th>面付け</th><th>小計</th><th>版代</th><th>刃型代</th><th>合計</th><th>単価</th></tr>'+lotRows+'</table></div>':'')
+      +'</div>';
+  } else {
+    var p={matP:S.matP,lamP:S.lamP,fin:S.fin,isNew:S.isNew,foil:S.foil,des:S.des,mg:S.mg};
+    var q0=lots[0];
+    var r=Dcalc(q0,S.W,S.H,p);
+    if(!r){addBot('計算エラー：幅が280mmを超えていないか確認してください。');return;}
+    var fl={sheet:'シート',roll:'ロール',allcut:'全抜き'}[S.fin];
+    var lotRows='';
+    if(lots.length>1){
+      for(var i=0;i<lots.length;i++){
+        var q=lots[i];
+        var rr=Dcalc(q,S.W,S.H,p);
+        if(!rr)continue;
+        lotRows+='<tr'+(i===0?' class="best"':'')+'><td>'+q.toLocaleString()+'枚</td><td>'+rr.men+'面×'+rr.slits+'sl</td><td>'+Y(rr.sell)+'</td><td>'+(rr.die?Y(rr.die):'—')+'</td><td>'+Y(rr.sell+rr.die)+'</td><td>'+rr.unit.toFixed(2)+'円</td></tr>';
+      }
+    }
+    html='<div class="result">'
+      +'<div class="rh"><b>📄 デジタル印刷（AccurioLabel）見積（社内用）</b><small>'+S.W+'×'+S.H+'mm / '+fl+' / '+today()+'</small></div>'
+      +'<div class="sgrid">'
+      +'<div class="sg"><div class="sl">面付け</div><div class="sv">'+r.men+'面 × '+r.slits+'スリット = '+r.pc+'列</div></div>'
+      +'<div class="sg"><div class="sl">印刷/抜きshot</div><div class="sv">'+r.ps+'shot / '+r.ds+'shot</div></div>'
+      +'<div class="sg"><div class="sl">計算用m数</div><div class="sv">'+r.cm.toFixed(1)+'m → '+r.om+'m発注</div></div>'
+      +'<div class="sg"><div class="sl">仕上げ / 刃型</div><div class="sv">'+fl+' / '+(S.isNew?'新規':'再版')+'</div></div>'
+      +'</div>'
+      +'<div class="costs">'
+      +'<div class="cr"><span>① 紙代</span><span class="cv">'+Y(r.pcost)+'</span></div>'
+      +(r.lcost?'<div class="cr"><span>　ラミ代</span><span class="cv">'+Y(r.lcost)+'</span></div>':'')
+      +'<div class="cr"><span>② 印刷費（'+r.cm.toFixed(1)+'m×逓減）</span><span class="cv">'+Y(r.prc)+'</span></div>'
+      +'<div class="cr"><span>③ スリット代（'+r.slits+'スリット）</span><span class="cv">'+Y(r.slit)+'</span></div>'
+      +'<div class="cr"><span>④ 抜き代（'+r.ds+'shot）</span><span class="cv">'+Y(r.nuki)+'</span></div>'
+      +(r.fc?'<div class="cr"><span>⑤ 箔押し材料</span><span class="cv">'+Y(r.fc)+'</span></div>':'')
+      +(r.dsc?'<div class="cr"><span>⑥ 複数デザイン</span><span class="cv">'+Y(r.dsc)+'</span></div>':'')
+      +'<div class="cr" style="color:#991b1b"><span>刃型代（'+(S.isNew?'初回':'再版')+'）</span><span class="cv">'+Y(r.die)+'</span></div>'
+      +'</div>'
+      +'<div class="totbox"><span class="tl">印刷小計（税別）</span><span class="tv">'+Y(r.sell)+'</span></div>'
+      +'<div class="ul">単価: '+r.unit.toFixed(2)+'円/枚　|　合計（刃型込）: '+Y(r.sell+r.die)+'</div>'
+      +(r.die?'<div class="dn">※ 刃型代 '+Y(r.die)+'（初回のみ別途）</div>':'')
+      +(lots.length>1?'<div class="lsec"><h3>📊 数量別比較</h3><table><tr><th>数量</th><th>面付け</th><th>印刷小計</th><th>刃型代</th><th>合計</th><th>単価</th></tr>'+lotRows+'</table></div>':'')
+      +'</div>';
+  }
+  div.innerHTML=html+'<button class="rst" onclick="restart()">🔄 新しい見積を始める</button>';
+  div.scrollIntoView({behavior:'smooth',block:'start'});
+}
+function restart(){
+  S={mode:null,W:0,H:0,pap:0,lam:0,matP:0,lamP:0,ink:'特色',col:1,han:'新版',hag:'新型',shi:'シート',fin:'sheet',isNew:true,foil:false,des:1,mg:0,lots:[]};
+  document.getElementById('chat').innerHTML='';
+  document.getElementById('result').innerHTML='';
+  runStep(0);
+}
+
+// 起動
+document.addEventListener('DOMContentLoaded', function(){ runStep(0); });
+
+if('serviceWorker' in navigator){
+  window.addEventListener('load',function(){
+    navigator.serviceWorker.register('./sw.js');
+  });
+}
+</script>
+</body>
+</html>
