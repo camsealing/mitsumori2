@@ -338,7 +338,7 @@ function showResult(){
         var q=lots[i];
         var rr=Dcalc(q,S.W,S.H,p);
         if(!rr)continue;
-        lotRows+='<tr'+(i===0?' class="best"':'')+'><td>'+q.toLocaleString()+'枚</td><td>'+rr.men+'面×'+rr.slits+'sl</td><td>'+Y(rr.sell)+'</td><td>'+(rr.die?Y(rr.die):'—')+'</td><td>'+Y(rr.sell+rr.die)+'</td><td>'+rr.unit.toFixed(2)+'円</td></tr>';
+        lotRows+='<tr'+(i===0?' class="best"':'')+'><td>'+q.toLocaleString()+'枚</td><td>'+rr.men+'面×'+rr.slits+'sl</td><td>'+Y(rr.sell)+'</td><td>'+(rr.die?Y(rr.die):'—')+'</td><td>'+Y(rr.sell+rr.die)+'</td><td>'+(rr.sell/q).toFixed(2)+'円（刃型除）</td></tr>';
       }
     }
     html='<div class="result">'
@@ -360,9 +360,9 @@ function showResult(){
       +'<div class="cr" style="color:#991b1b"><span>刃型代（'+(S.isNew?'初回':'再版')+'）</span><span class="cv">'+Y(r.die)+'</span></div>'
       +'</div>'
       +'<div class="totbox"><span class="tl">印刷小計（税別）</span><span class="tv">'+Y(r.sell)+'</span></div>'
-      +'<div class="ul">単価: '+r.unit.toFixed(2)+'円/枚　|　合計（刃型込）: '+Y(r.sell+r.die)+'</div>'
+      +'<div class="ul">単価（刃型除）: '+r.unit.toFixed(2)+'円/枚　|　合計（刃型込）: '+Y(r.sell+r.die)+'</div>'
       +(r.die?'<div class="dn">※ 刃型代 '+Y(r.die)+'（初回のみ別途）</div>':'')
-      +(lots.length>1?'<div class="lsec"><h3>📊 数量別比較</h3><table><tr><th>数量</th><th>面付け</th><th>印刷小計</th><th>刃型代</th><th>合計</th><th>単価</th></tr>'+lotRows+'</table></div>':'')
+      +(lots.length>1?'<div class="lsec"><h3>📊 数量別比較</h3><table><tr><th>数量</th><th>面付け</th><th>印刷小計</th><th>刃型代</th><th>合計</th><th>単価(刃型除)</th></tr>'+lotRows+'</table></div>':'')
       +'</div>';
   }
   div.innerHTML=html+'<button class="rst" onclick="restart()">🔄 新しい見積を始める</button>';
